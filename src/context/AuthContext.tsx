@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authApi } from '@/api/auth';
 
+// Defining the shape of the Steam profile data we expect
 interface User {
-    steamId: string;
-    displayName: string;
+    steamid: string;
+    personaname: string;
+    profileurl: string;
     avatar: string;
+    avatarmedium: string;
+    avatarfull: string;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (userData: User) => void;
     logout: () => void;
 }
 
@@ -21,29 +25,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Placeholder: Later, we will fetch to our /api/auth/me route here 
-        // to check if the user has a valid HttpOnly cookie session.
         const checkSession = async () => {
-            setIsLoading(false);
+            try {
+                // The Vite proxy routes this to the backend
+                const data = await authApi.getMe();
+                
+                if (data.authenticated && data.user) {
+                    // Passport nests the actual data inside user._json
+                    setUser(data.user._json);
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Session check failed:", error);
+                setUser(null);
+            } finally {
+                setIsLoading(false);
+            }
         };
+
         checkSession();
     }, []);
 
-    const login = (userData: User) => setUser(userData);
-    
     const logout = () => {
-        setUser(null);
-        // Later: call backend /api/auth/logout to destroy the cookie
+        // Redirect to the backend logout route to destroy the HTTP-only cookie
+        window.location.href = authApi.getLogoutUrl();
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            isAuthenticated: !!user, 
+            isLoading, 
+            logout 
+        }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
         throw new Error('useAuth must be used within an AuthProvider');

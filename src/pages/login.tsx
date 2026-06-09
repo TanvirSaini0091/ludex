@@ -3,14 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Grid2x2PlusIcon } from 'lucide-react';
 import { Particles } from '@/components/ui/particles';
 import logo from '@/assets/steam.png';
+import { authApi } from '@/api/auth';
 
 export function Login() {
-    // This will eventually point to your Express/Node backend route 
-    // e.g., window.location.href = 'http://localhost:3000/auth/steam'
-    const handleSteamLogin = () => {
-        console.log("Redirecting to Steam OpenID...");
-        // window.location.href = '/api/auth/steam'; 
-    };
+const handleSteamLogin = () => {
+    window.location.href = authApi.getSteamLoginUrl(); 
+};
 
     return (
         <div className="relative md:h-screen md:overflow-hidden w-full bg-background text-foreground">

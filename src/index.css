@@ -128,3 +128,27 @@
     @apply font-sans;
     }
 }
+
+/* Custom Scrollbars for the entire app */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* For specific containers that use the class */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
